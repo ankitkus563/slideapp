@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slide Presentation with Pen Tool</title>
+
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/white.css" />
+
+    <style>
+      /* Styles for the home button */
+      #home-button {
+        display: none; /* Hide button by default */
+        position: fixed; /* Fix position on screen */
+        top: 15%;
+        left: 90%; /* Center horizontally */
+        transform: translate(-50%, -50%); /* Adjust position */
+        padding: 10px 20px; /* Add some padding */
+        font-size: 20px; /* Increase font size */
+        background-color: #007bff; /* Button color */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor */
+        z-index: 1000; /* Ensure it appears above other content */
+      }
+      
+      /* Canvas styles */
+      #canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999; /* Draw above everything else */
+        background-color: transparent; /* Ensure it's transparent */
+        display: none; /* Hidden by default */
+      }
+      
+      #btn-controls {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block; 
+        gap: 10px;
+        z-index: 1001; /* Keep it on top of canvas */
+      }
+      
+      #clr-controls {
+        position: fixed;
+        top: 200px;
+        left: 2%;
+        transform: translateX(-50%);
+        display: none; /* Hidden by default */
+        gap: 10px;
+        z-index: 1001;
+        flex-direction: column;
+      }
+      
+      button {
+        cursor: pointer;
+        padding: 10px;
+        font-size: 16px;
+      }
+      
+      .clr-btn {
+        width: 27px;
+        height: 27px;
+        border: none;
+        border: solid 1px;
+       
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        {% for slide in slides %}
+          <section>
+            {{ slide|safe }} <!-- Render each slide as safe HTML -->
+          </section>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div id="clr-controls">
+        <button id="red" class="clr-btn" style="background-color: red;" onclick="changeColor('red')"></button>
+        <button id="blue" class="clr-btn" style="background-color: blue;" onclick="changeColor('blue')"></button>
+        <button id="green" class="clr-btn" style="background-color: green;" onclick="changeColor('green')"></button>
+        <button id="yellow" class="clr-btn" style="background-color: yellow;" onclick="changeColor('yellow')"></button>
+        <button id="black" class="clr-btn" style="background-color: black;" onclick="changeColor('black')"></button>
+        <button id="purple" class="clr-btn" style="background-color: purple;" onclick="changeColor('purple')"></button>
+        <button id="orange" class="clr-btn" style="background-color: orange;" onclick="changeColor('orange')"></button>
+        <button id="pink" class="clr-btn" style="background-color: pink;" onclick="changeColor('pink')"></button>
+        <button id="brown" class="clr-btn" style="background-color: brown;" onclick="changeColor('brown')"></button>
+        <button id="gray" class="clr-btn" style="background-color: gray;" onclick="changeColor('gray')"></button>
+    </div>
+    
+
+    <!-- Pen Tool Controls -->
+    <div id="btn-controls">
+      <button onclick="clearCanvas()">Clear</button>
+      <button onclick="dPenSize(3)">-</button>
+      <button onclick="iPenSize(2)">+</button>
+      <button id="toggle-btn" onclick="toggleDrawing()">Start Drawing</button>
+    </div>
+
+    <!-- Canvas for drawing -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Button to go to home page -->
+    <button id="home-button" onclick="window.location.href='/'">Go to Home</button>
+
+    <!-- Reveal.js -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        width: '100%',
+        height: '100%',
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        slideNumber: true,
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast'
+      })
+      
+      // Pen tool functionality
+      let canvas = document.getElementById('canvas')
+      let ctx = canvas.getContext('2d')
+      let drawing = false
+      let penColor = 'red'
+      let penSize = 2
+      let isDrawingEnabled = false // Drawing disabled by default
+      
+      // Adjust the canvas size to cover the whole screen
+      function resizeCanvas() {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+      }
+      window.addEventListener('resize', resizeCanvas)
+      resizeCanvas()
+      
+      // Toggle drawing mode
+      function toggleDrawing() {
+        isDrawingEnabled = !isDrawingEnabled
+        if (isDrawingEnabled) {
+          document.getElementById("toggle-btn").innerText = "Stop Drawing"
+          document.getElementById("clr-controls").style.display = "flex"
+          document.getElementById("canvas").style.display = "block"
+        } else {
+          document.getElementById("toggle-btn").innerText = "Start Drawing"
+          document.getElementById("clr-controls").style.display = "none"
+          document.getElementById("canvas").style.display = "none"
+        }
+      }
+      
+      // Mouse events for drawing
+      canvas.addEventListener('mousedown', startDrawing)
+      canvas.addEventListener('mouseup', stopDrawing)
+      canvas.addEventListener('mousemove', draw)
+      
+      function startDrawing(event) {
+        if (isDrawingEnabled) {
+          drawing = true
+          draw(event) // draw when the user clicks down
+        }
+      }
+      
+      function stopDrawing() {
+        drawing = false
+        ctx.beginPath() // stops drawing path
+      }
+      
+      function draw(event) {
+        if (!drawing) return
+      
+        ctx.lineWidth = penSize
+        ctx.lineCap = 'round'
+        ctx.strokeStyle = penColor
+      
+        ctx.lineTo(event.clientX, event.clientY)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(event.clientX, event.clientY)
+      }
+      
+      // Clear the canvas
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+      }
+      
+      // Change pen color
+      function changeColor(color) {
+        penColor = color
+      }
+      
+      // Change pen size
+      function iPenSize(size) {
+        penSize += size
+      }
+
+      function dPenSize(size) {
+        if (penSize > size) {
+          penSize -= size
+        }
+      }
+
+      // Fullscreen and navigation controls
+      Reveal.addEventListener('ready', function () {
+        if (Reveal.isReady()) {
+          Reveal.toggleFullscreen()
+        }
+
+      })
+      
+      // Exit full-screen mode when Esc is pressed
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          if (document.fullscreenElement) {
+            document.exitFullscreen() // Exit full-screen mode
+          } else {
+            
+          }
+        }
+      })
+      
+      // Jump to slide functionality
+      let index = '' // Variable to store the slide number
+      
+      document.addEventListener('keydown', function (event) {
+        const key = event.key
+      
+        if (!isNaN(key) && key !== ' ') {
+          index += key
+        }
+      
+        if (event.key === 'Enter') {
+          if (index) {
+            const slideIndex = parseInt(index) - 1
+            jumpToSlide(slideIndex)
+            index = ''
+          }
+        }
+      
+        if (event.key === 'Escape') {
+          index = ''
+          window.location.href="/"
+          findidandclick()
+        }
+      })
+      
+      function jumpToSlide(slideIndex) {
+        Reveal.slide(slideIndex)
+      }
+    </script>
+  </body>
+</html>

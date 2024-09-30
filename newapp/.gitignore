@@ -1,0 +1,68 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Django stuff:
+db.sqlite3
+*.log
+*.pot
+*.py[cod]
+*.mo
+*.swp
+
+# Ignore migrations for initial commits
+*/migrations/
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Ignore environment files
+.env
+*.env
+.env.local
+.env.production
+.env.staging
+*.env.*
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+.venv/
+.virtualenv/
+
+# Ignore IDE and editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+
+# Ignore static and media files
+/staticfiles/
+/media/
+/static/
+/node_modules/
+
+# Ignore files created by package managers
+*.lock
+*.yarn
+npm-debug.log
+pids/
+
+# Ignore coverage and testing
+htmlcov/
+.coverage
+.tox/
+.cache
+coverage.xml
+nosetests.xml
+*.cover
+
+# Ignore deployment files
+*.bak
+*.orig
+*.swp
+*.swo
